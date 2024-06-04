@@ -7,6 +7,9 @@ export default {
         "surgu-main-color": "#2042b9",
         "surgu-main-color-hover": "#18328e",
       },
+      width: {
+        12: "3rem",
+      },
       transitionDelay: {
         "delay-100": "100ms",
       },

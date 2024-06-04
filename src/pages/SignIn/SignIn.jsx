@@ -1,7 +1,25 @@
 import LogoWhite from "../../assets/logo.png";
 import { Form, useForm } from "react-hook-form";
+import { useLoginMutation } from "../../redux/user";
+import useActions from "../../utils/hooks/useActions";
+import { useNavigate } from "react-router-dom";
 const SignIn = () => {
   const { control, register } = useForm();
+  const [signinReq] = useLoginMutation();
+  const { setCredentials } = useActions();
+  const navigate = useNavigate();
+  const onSubmit = async ({ data: { email, password } }) => {
+    try {
+      const responseUser = await signinReq({ email, password }).unwrap();
+      setCredentials({ ...responseUser });
+      navigate("/");
+    } catch (error) {
+      if (error.originalStatus === 400) {
+        alert("Неверный логин или пароль.");
+      } else if (error.status === "FETCH_ERROR")
+        alert("Отсутствует соединение с сервером.");
+    }
+  };
   return (
     <div className="flex min-h-screen items-center flex-col justify-center px-6 py-12 lg:px-8 bg-gray-800">
       <div className="signin-wrapper flex flex-col max-w-[500px] w-full">
@@ -19,6 +37,7 @@ const SignIn = () => {
         <div className="mt-10 flex flex-col">
           <Form
             control={control}
+            onSubmit={onSubmit}
             className="space-y-6 flex flex-col flex-grow-0"
           >
             <div>
@@ -31,11 +50,10 @@ const SignIn = () => {
               <div className="mt-2">
                 <input
                   id="email"
-                  name="email"
                   type="email"
                   autoComplete="email"
                   placeholder="Login"
-                  required
+                  {...register("email")}
                   className={
                     `bg-gray-50 border border-gray-300 text-gray-900 ` +
                     "text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 " +
@@ -59,10 +77,9 @@ const SignIn = () => {
               <div className="mt-1">
                 <input
                   id="password"
-                  name="password"
                   type="password"
-                  autoComplete="current-password"
                   required
+                  {...register("password")}
                   placeholder="Password"
                   className={
                     `bg-gray-50 border border-gray-300 text-gray-900 ` +

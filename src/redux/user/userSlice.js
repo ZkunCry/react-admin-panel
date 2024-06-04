@@ -1,14 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+const currentUser = JSON.parse(localStorage.getItem("user")) || undefined;
 const initialState = {
   user: {
-    id: null,
+    id: currentUser?.id,
+    name: currentUser?.name,
     group: null,
     institute: null,
     role: null,
     privilige: null,
     lastSeen: null,
-    accessToken: null,
+    accessToken: currentUser?.accessToken,
     photoPath: "",
   },
 };

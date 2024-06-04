@@ -1,5 +1,6 @@
 import { Outlet, useLocation, Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+
 const PublicRouter = () => {
   const location = useLocation();
   const { accessToken } = useAuth();
