@@ -8,7 +8,13 @@ export const userApiSlice = Api.injectEndpoints({
         body: { ...credentials },
       }),
     }),
+    getUsers: builder.query({
+      query: (count) => ({
+        url: `/user?offset=${count}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = userApiSlice;
+export const { useLoginMutation, useLazyGetUsersQuery } = userApiSlice;
