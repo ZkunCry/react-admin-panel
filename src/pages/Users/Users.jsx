@@ -8,7 +8,7 @@ import {
   Table,
   TextInput,
 } from "flowbite-react";
-import { useLazyGetUsersQuery } from "../../redux/user";
+import { useChangeUserMutation, useLazyGetUsersQuery } from "../../redux/user";
 import { paginationTheme } from "../../utils/constants/pagination";
 import { Form, useForm } from "react-hook-form";
 import { modalTheme } from "../../utils/constants/modal";
@@ -16,7 +16,15 @@ import { inputTheme } from "../../utils/constants/input";
 const countVisible = 10;
 
 const Users = () => {
-  const { control, register, handleSubmit } = useForm();
+  const { control, register, handleSubmit } = useForm({
+    defaultValues: {
+      email: undefined,
+      privilege: undefined,
+      name: undefined,
+      role: undefined,
+      group: undefined,
+    },
+  });
 
   const [openModal, setOpenModal] = useState(false);
   const [getUsers, { data, isLoading }] = useLazyGetUsersQuery();
@@ -35,9 +43,22 @@ const Users = () => {
     setSelectedUser(user);
     setOpenModal(true);
   };
+  const [changeUser, usera] = useChangeUserMutation();
   const [modalState, setModalState] = useState("default");
-  const onSubmitEdit = async (data) => {
-    console.log(data);
+  const onSubmitEdit = async (currentUser) => {
+    const result = {
+      data: {
+        ...Object.fromEntries(
+          Object.entries(currentUser).filter(([_, value]) => value !== "")
+        ),
+        id: selectedUser.id,
+      },
+    };
+    try {
+      await changeUser(result);
+    } catch (error) {
+      console.log("ERROR", error.message);
+    }
   };
 
   return (

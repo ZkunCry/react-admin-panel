@@ -14,7 +14,15 @@ export const userApiSlice = Api.injectEndpoints({
         method: "GET",
       }),
     }),
+    changeUser: builder.mutation({
+      query: (credentials) => ({
+        url: `/admin/user/change?userId=${credentials.data.id}`,
+        method: "POST",
+        body: { ...credentials },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useLazyGetUsersQuery } = userApiSlice;
+export const { useLoginMutation, useLazyGetUsersQuery, useChangeUserMutation } =
+  userApiSlice;
