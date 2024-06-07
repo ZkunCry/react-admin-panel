@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Navbar, SideBar } from "../../components";
+import { Avatar, Navbar, SideBar } from "../../components";
 import {
   Flowbite,
   Label,
@@ -28,22 +28,33 @@ const Users = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [getUsers, { data, isLoading }] = useLazyGetUsersQuery();
+  const [users, setUsers] = useState([]);
   const id = useId();
   const [offset, setOffset] = useState(0);
+  useEffect(() => {
+    if (data !== undefined) setUsers((prev) => [...prev, ...data]);
+  }, [data]);
   useEffect(() => {
     (async () => await getUsers(offset))();
   }, []);
   const [currentPage, setCurrentPage] = useState(1);
   const lastndex = currentPage * countVisible;
   const firstIndex = lastndex - countVisible;
-  const currentElements = data?.slice(firstIndex, lastndex);
+  const currentElements = users?.slice(firstIndex, lastndex);
   const [selectedUser, setSelectedUser] = useState();
-  const onPageChange = (page) => setCurrentPage(page);
+  const onPageChange = async (page) => {
+    if (page === users?.length / 10) {
+      await getUsers(offset + 30);
+      setOffset((prev) => prev + 30);
+    }
+
+    setCurrentPage(page);
+  };
   const onClickButton = (user) => {
     setSelectedUser(user);
     setOpenModal(true);
   };
-  const [changeUser, usera] = useChangeUserMutation();
+  const [changeUser] = useChangeUserMutation();
   const [modalState, setModalState] = useState("default");
   const onSubmitEdit = async (currentUser) => {
     const result = {
@@ -55,7 +66,7 @@ const Users = () => {
       },
     };
     try {
-      await changeUser(result);
+      const response = await changeUser(result);
     } catch (error) {
       console.log("ERROR", error.message);
     }
@@ -98,13 +109,13 @@ const Users = () => {
           <div className="overflow-x-auto rounded-lg  ">
             <Table className="bg-transparent z-[-1] text-center">
               <Table.Head className="sticky top-0">
-                <Table.HeadCell className="text-left">
+                <Table.HeadCell className="text-left text-sm">
                   Пользователь
                 </Table.HeadCell>
-                <Table.HeadCell>Должность</Table.HeadCell>
-                <Table.HeadCell>Статус</Table.HeadCell>
-                <Table.HeadCell>Привилегия</Table.HeadCell>
-                <Table.HeadCell>
+                <Table.HeadCell className=" text-sm">Должность</Table.HeadCell>
+                <Table.HeadCell className=" text-sm">Статус</Table.HeadCell>
+                <Table.HeadCell className=" text-sm">Привилегия</Table.HeadCell>
+                <Table.HeadCell className=" text-sm">
                   <span className="sr-only">Редактировать</span>
                 </Table.HeadCell>
               </Table.Head>
@@ -121,7 +132,8 @@ const Users = () => {
                       >
                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white ">
                           <div className="flex items-center gap-2">
-                            <div className="w-[40px] h-[40px] bg-gray-500 rounded-[50%]"></div>
+                            <Avatar imgClass="h-[40px] w-[40px]" user={user} />
+                            {/* <div className="w-[40px] h-[40px] bg-gray-500 rounded-[50%]"></div> */}
                             <div className="flex flex-col items-start">
                               <span>{user.name} </span>
                               <span className="text-[12px] text-gray-500">
@@ -136,7 +148,7 @@ const Users = () => {
                             : user?.role}
                         </Table.Cell>
                         <Table.Cell>
-                          <span className="px-2 py-1 bg font-semibold rounded-lg text-xs bg-red-400  text-red-800 ">
+                          <span className="px-2 py-1 bg text-xs font-semibold rounded-lg bg-red-100 text-red-800 group-hover:bg-red-200 dark:bg-red-300 dark:text-red-900 dark:group-hover:bg-red-300 ">
                             Оффлайн
                           </span>
                         </Table.Cell>
@@ -144,7 +156,7 @@ const Users = () => {
                         <Table.Cell>
                           <button
                             onClick={() => onClickButton(user)}
-                            className="px-4 py-1 rounded-lg bg-[#2042b9]  font-semibold text-xs"
+                            className="px-4 py-1 rounded-lg bg-cyan-100 text-cyan-800 group-hover:bg-cyan-200 dark:bg-cyan-200 dark:text-cyan-800 dark:group-hover:bg-cyan-300 text-xs"
                           >
                             Редактировать
                           </button>
@@ -161,7 +173,7 @@ const Users = () => {
               <Pagination
                 className="flex justify-center"
                 currentPage={currentPage}
-                totalPages={data?.length / 10 || 10}
+                totalPages={users?.length / 10 || 10}
                 onPageChange={onPageChange}
               />
             </Flowbite>

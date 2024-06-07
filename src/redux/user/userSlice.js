@@ -24,7 +24,9 @@ const userSlice = createSlice({
     },
     setToken: (state, action) => {
       state.user.accessToken = action.payload;
-      localStorage.setItem("accessToken", JSON.stringify(action.payload));
+      const user = JSON.parse(localStorage.getItem("user"));
+      user.accessToken = action.payload;
+      localStorage.setItem("user", JSON.stringify(user));
     },
   },
 });

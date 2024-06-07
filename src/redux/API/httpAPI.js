@@ -6,6 +6,7 @@ const baseQuery = fetchBaseQuery({
   mode: "cors",
   prepareHeaders: (headers, { getState }) => {
     const accessToken = getState().user.user.accessToken;
+    console.log(accessToken);
     if (accessToken) {
       headers.set("Authorization", `Bearer ${accessToken}`);
       headers.set("Content-type", "application/json");
